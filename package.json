@@ -1,0 +1,24 @@
+{
+  "name": "rebuilder",
+  "version": "1.0.0",
+  "description": "Build your static files on demand",
+  "main": "rebuilder.js",
+  "scripts": {
+    "test": "jasmine"
+  },
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/just-boris/rebuilder.git"
+  },
+  "bugs": {
+    "url": "https://github.com/just-boris/rebuilder/issues"
+  },
+  "homepage": "https://github.com/just-boris/rebuilder",
+  "dependencies": {
+    "express": "^4.12.3",
+    "lodash": "^3.6.0",
+    "promisify-node": "^0.1.5"
+  }
+}
