@@ -38,16 +38,6 @@ module.exports = function(config, callback) {
             task.run(next);
         });
     });
-    //TODO use module for static serving
-    app.get('*', function(req, res) {
-        var file = path.join(config.baseDir, req.path);
-        fs.open(file, 'r', function(err, fd) {
-            if(err) {
-                res.status(404).send({'not': 'found'});
-            } else {
-                fs.createReadStream(null, {fd: fd}).pipe(res);
-            }
-        });
-    });
-    app.listen(3000);
+    app.use(express.static(config.baseDir));
+    app.listen(config.port || 3000);
 };
