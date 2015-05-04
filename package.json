@@ -1,8 +1,8 @@
 {
-  "name": "rebuilder",
+  "name": "build-proxy",
   "version": "1.0.0",
   "description": "Build your static files on demand",
-  "main": "rebuilder.js",
+  "main": "index.js",
   "scripts": {
     "test": "jasmine"
   },
@@ -10,15 +10,22 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/just-boris/rebuilder.git"
+    "url": "https://github.com/just-boris/build-proxy.git"
   },
   "bugs": {
-    "url": "https://github.com/just-boris/rebuilder/issues"
+    "url": "https://github.com/just-boris/build-proxy/issues"
   },
-  "homepage": "https://github.com/just-boris/rebuilder",
+  "homepage": "https://github.com/just-boris/build-proxy",
   "dependencies": {
     "express": "^4.12.3",
     "lodash": "^3.6.0",
     "promisify-node": "^0.1.5"
+  },
+  "devDependencies": {
+    "jasmine": "^2.3.1",
+    "jasmine-utils": "^0.2.1",
+    "mock-fs": "^2.6.0",
+    "q": "^1.3.0",
+    "q-supertest": "^1.0.0"
   }
 }

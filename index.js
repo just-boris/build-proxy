@@ -1,8 +1,6 @@
 /*jshint node:true*/
 "use strict";
-var fs = require('fs'),
-    _ = require('lodash'),
-    path = require('path'),
+var _ = require('lodash'),
     express = require('express'),
     promisify = require('promisify-node');
 
@@ -28,7 +26,7 @@ function Task(taskName, cooldown, callback) {
     }
 }
 
-module.exports = function(config, callback) {
+function createMiddleware(config, callback) {
     var app = express(),
         cooldown = config.cooldownTime || 0;
 
@@ -39,5 +37,11 @@ module.exports = function(config, callback) {
         });
     });
     app.use(express.static(config.baseDir));
-    app.listen(config.port || 3000);
+    return app;
+}
+
+module.exports = function(config, callback) {
+    return createMiddleware(config, callback).listen(config.port || 3000);
 };
+
+module.exports.middleware = createMiddleware;
