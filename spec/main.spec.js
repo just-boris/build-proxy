@@ -11,9 +11,9 @@ describe("build-proxy", function() {
         app = proxy({
             baseDir: '/tmp',
             routes: {
-                '/scripts/**': 'build-js',
-                '/styles/**': 'build-styles',
-                '/templates/**': 'build-templates'
+                '/scripts/*': 'build-js',
+                '/styles/*': 'build-styles',
+                '/templates/*': 'build-templates'
             }
         }, cb);
     });
@@ -23,37 +23,21 @@ describe("build-proxy", function() {
         app.close();
     });
 
-    it("should build file before request", function(done) {
-        cb.and.callFake(function(task, cb) {
+    it("should build file before response", function(done) {
+        cb.and.callFake(function(task, params, cb) {
             fakeFs({
                 '/tmp/scripts/main.js': 'script content'
             });
             cb();
         });
         request(app).get("/scripts/main.js").expect(200, 'script content').then(function(res) {
-            expect(cb).toHaveBeenCalledWith('build-js', jasmine.any(Function));
+            expect(cb).toHaveBeenCalledWith('build-js', {0:'main.js'}, jasmine.any(Function));
             done();
-        });
+        }, done.fail);
     });
 
-    it("should run one job for all files", function(done) {
-        cb.and.callFake(function(task, cb) {
-            fakeFs({
-                '/tmp/scripts/main.js': 'script content',
-                '/tmp/scripts/extra.js': 'extra script'
-            });
-            setTimeout(cb, 1);
-        });
-        q.all([
-            request(app).get("/scripts/main.js").expect(200, 'script content'),
-            request(app).get("/scripts/extra.js").expect(200, 'extra script')
-        ]).then(function() {
-            expect(cb).toHaveBeenCalledOnceWith('build-js', jasmine.any(Function));
-        }).then(done, done.fail);
-    });
-
-    it("should run job for each type of files", function(done) {
-        cb.and.callFake(function(task, cb) {
+    it("should allow concurrent builds", function(done) {
+        cb.and.callFake(function(task, params, cb) {
             fakeFs({
                 '/tmp/styles/main.css': 'some styles',
                 '/tmp/scripts/main.js': 'script content',
@@ -66,58 +50,39 @@ describe("build-proxy", function() {
             request(app).get("/scripts/main.js").expect(200, 'script content'),
             request(app).get("/scripts/extra.js").expect(200, 'extra script')
         ]).then(function() {
-            expect(cb).toHaveBeenCalledWith('build-js', jasmine.any(Function));
-            expect(cb).toHaveBeenCalledWith('build-styles', jasmine.any(Function));
-            expect(cb.calls.count()).toBe(2);
+            expect(cb).toHaveBeenCalledWith('build-js', {0:'main.js'}, jasmine.any(Function));
+            expect(cb).toHaveBeenCalledWith('build-js', {0:'extra.js'}, jasmine.any(Function));
+            expect(cb).toHaveBeenCalledWith('build-styles', {0:'main.css'}, jasmine.any(Function));
+            expect(cb.calls.count()).toBe(3);
         }).then(done, done.fail);
     });
-});
 
-describe("cooldown option", function() {
-    function makeRequest() {
-        return request(app).get("/scripts/main.js").expect(200, 'build result')
-    }
-
-    var app, cb;
-
-    beforeEach(function() {
-        cb = jasmine.createSpy('build callback').and.callFake(function(task, cb) {
+    it("should rebuild again on new request", function(done) {
+        function makeRequest() {
+            return request(app).get("/scripts/main.js").expect(200, 'script content');
+        }
+        cb.and.callFake(function(task, params, cb) {
             fakeFs({
-                '/tmp/scripts/main.js': 'build result'
+                '/tmp/scripts/main.js': 'script content'
             });
             cb();
         });
-        app = proxy({
-            baseDir: '/tmp',
-            cooldownTime: 100,
-            routes: {
-                '/scripts/**': 'build-js'
-            }
-        }, cb);
-    });
-
-    afterEach(function() {
-        fakeFs.restore();
-        app.close();
-    });
-
-    it("should reuse build result for a while", function(done) {
         makeRequest().then(function() {
             return makeRequest()
         }).then(function() {
-            expect(cb).toHaveBeenCalledOnceWith('build-js', jasmine.any(Function));
-        }).then(done, done.fail);
+            expect(cb).toHaveBeenCalledWith('build-js', {0:'main.js'}, jasmine.any(Function));
+            expect(cb.calls.count()).toBe(2);
+            done();
+        }, done.fail);
     });
 
-    it("should build again after cooldown time", function(done) {
-        makeRequest().then(function() {
-            cb.calls.reset();
-        }).then(function() {
-            return q.delay(100);
-        }).then(function() {
-            return makeRequest();
-        }).then(function() {
-            expect(cb).toHaveBeenCalledOnceWith('build-js', jasmine.any(Function));
-        }).then(done, done.fail);
+    it("should return an error if it has been occurred", function(done) {
+        cb.and.callFake(function(task, params, cb) {
+            cb(new Error("error in build"));
+        });
+        request(app).get("/scripts/main.js").expect(500, /^Error: error in build/).then(function(res) {
+            expect(cb).toHaveBeenCalledWith('build-js', {0:'main.js'}, jasmine.any(Function));
+            done();
+        }, done.fail);
     });
 });

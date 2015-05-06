@@ -1,7 +1,9 @@
 # Build proxy
 
-> [Express.js](http://expressjs.com/) app which helps you update your resources on demand
+> [Express.js](http://expressjs.com/) app which updates your resources on demand
  
+
+This is like [webpack-dev-server](http://webpack.github.io/docs/webpack-dev-server.html), but framework-agnostic  
  
 ## Getting started
 
@@ -18,16 +20,15 @@ var proxy = require('build-proxy');
 
 proxy({
     '**/*.js': 'scripts'
-}, function(action, done) {
+}, function(action, params, done) {
     // run Gulp task 'scripts' to process get your js from coffee, for example
     gulp.start(action, done);
 });
 ```
 
 This code will run a webserver on http://localhost:3000, and it will call your action every time, when you try to get
-some resource. It means that you don't need to keep some watcher daemon, you will get built resource every time. 
-Instead of watchers pattern, which build your project for after save, here it will be built only when it is really 
-needed.
+some resource. It means that you don't need to keep some watcher daemon, you will get actual resource every time. 
+Instead of watchers pattern, which works after each save, here it will be built only when it is really needed.
 
 You can pass several routes for different purposes:
 
@@ -35,23 +36,28 @@ You can pass several routes for different purposes:
 var proxy = require('build-proxy');
 
 proxy({
-    '**/*.js': 'scripts',
-    '**/*.css': 'styles',
-}, function(action, done) {
-    // action will be 'styles' or 'scripts'
+    '/': 'main-page',
+    '/gallery': 'gallery-page',
+}, function(action, params, done) {
+    // build starts only for these resources that you actually need now 
     gulp.start(action, done);
 });
 ```
 
+*Note that you also have to describe gulp task for each page on your own.*
+
+Also you will get route params in the second argument. This is just [request params](http://expressjs.com/4x/api.html#req.params)
+from Express.js. You can use it to determine, which file should be built now.
+
 ## Grunt and other build systems
 
-You do not need to use Gulp! Here is Webpack:
- 
+You do not need to use Gulp! Here is Browserify:
+                              
 ```js
 proxy({
-    '**/*.js': 'scripts'
-}, function(action, done) {
-    webpack({/*config*/}, done);
+ '**/*.js': 'scripts'
+}, function(action, params, done) {
+ browserify({/*config*/}).bundle(done);
 });
 ```
 
@@ -61,9 +67,19 @@ use child_process for it
 ```js
 proxy({
     '**/*.js': 'scripts',
-}, function(action, done) {
+}, function(action, params, done) {
     // build scripts via grunt
     require('child_process').execFile('grunt', [action], done);
+});
+```
+
+You even can use it with webpack although it has its own solution:
+ 
+```js
+proxy({
+    '**/*.js': 'scripts'
+}, function(action, params, done) {
+    webpack({/*config*/}, done);
 });
 ```
 
@@ -82,8 +98,6 @@ in your build config
 * port (default: 3000) – if you don't want to run server on defuault port, run on any another
 * routes (required) – key-value pair, defines your actions for routes. Key can be any valid express url expression. 
 Value will be passed into your callback, when attempt to this route will be occurred
-* cooldownTime (default: 0) – time in millisecond when your recently built files should be considered as valid. Is is 
-useful when you have a lot of result files and one task and want to build and load them all with one callback
   
 ## Epilogue
 
