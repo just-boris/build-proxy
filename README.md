@@ -49,6 +49,15 @@ proxy({
 Also you will get route params in the second argument. This is just [request params](http://expressjs.com/4x/api.html#req.params)
 from Express.js. You can use it to determine, which file should be built now.
 
+```js
+proxy({
+    '/:page': 'page'
+}, function(action, params, done) {
+    // run something like 'main-page-build'
+    gulp.start(params.page + '-page-build', done)
+});
+```
+
 ## Grunt and other build systems
 
 You do not need to use Gulp! Here is Browserify:
