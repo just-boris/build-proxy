@@ -19,7 +19,10 @@ Then define some routes which you need to listen and pass callback where you wil
 var proxy = require('build-proxy');
 
 proxy({
-    '**/*.js': 'scripts'
+    baseDir: 'dist/',
+    routes: {
+        '**/*.js': 'scripts'
+    }
 }, function(action, params, done) {
     // run Gulp task 'scripts' to process get your js from coffee, for example
     gulp.start(action, done);
