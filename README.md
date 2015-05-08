@@ -39,8 +39,11 @@ You can pass several routes for different purposes:
 var proxy = require('build-proxy');
 
 proxy({
-    '/': 'main-page',
-    '/gallery': 'gallery-page',
+    baseDir: 'dist/',
+    routes: {
+        '/': 'main-page',
+        '/gallery': 'gallery-page',
+    }
 }, function(action, params, done) {
     // build starts only for these resources that you actually need now 
     gulp.start(action, done);
@@ -54,7 +57,10 @@ from Express.js. You can use it to determine, which file should be built now.
 
 ```js
 proxy({
-    '/:page': 'page'
+    baseDir: 'dist/',
+    routes: {
+        '/:page': 'page'
+    }
 }, function(action, params, done) {
     // run something like 'main-page-build'
     gulp.start(params.page + '-page-build', done)
@@ -67,7 +73,10 @@ You do not need to use Gulp! Here is Browserify:
                               
 ```js
 proxy({
- '**/*.js': 'scripts'
+    baseDir: 'dist/',
+    routes: {
+        '**/*.js': 'scripts'
+    }
 }, function(action, params, done) {
  browserify({/*config*/}).bundle(done);
 });
@@ -78,7 +87,10 @@ use child_process for it
 
 ```js
 proxy({
-    '**/*.js': 'scripts',
+    baseDir: 'dist/',
+    routes: {
+        '**/*.js': 'scripts'
+    }
 }, function(action, params, done) {
     // build scripts via grunt
     require('child_process').execFile('grunt', [action], done);
@@ -89,7 +101,10 @@ You even can use it with webpack although it has its own solution:
  
 ```js
 proxy({
-    '**/*.js': 'scripts'
+    baseDir: 'dist/',
+    routes: {
+        '**/*.js': 'scripts'
+    }
 }, function(action, params, done) {
     webpack({/*config*/}, done);
 });
