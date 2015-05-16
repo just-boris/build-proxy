@@ -17,9 +17,7 @@
   },
   "homepage": "https://github.com/just-boris/build-proxy",
   "dependencies": {
-    "express": "^4.12.3",
-    "lodash": "^3.6.0",
-    "promisify-node": "^0.1.5"
+    "express": "^4.12.3"
   },
   "devDependencies": {
     "jasmine": "^2.3.1",

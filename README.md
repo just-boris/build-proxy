@@ -1,9 +1,9 @@
 # Build proxy
 
-> [Express.js](http://expressjs.com/) app which updates your resources on demand
+> [Express.js](http://expressjs.com/) middleware for rebuilding resources on demand
  
-
-This is like [webpack-dev-server](http://webpack.github.io/docs/webpack-dev-server.html), but framework-agnostic  
+Intercept requests to files, run task to build them and block request until it will be finished.
+This is like [webpack-dev-server](http://webpack.github.io/docs/webpack-dev-server.html), but framework-agnostic.  
  
 ## Getting started
 
@@ -13,7 +13,7 @@ Install via npm:
 npm install build-proxy --save-dev
 ```
 
-Then define some routes which you need to listen and pass callback where you will do something:
+Then define some routes which you need to intercept and provide callback with action for your task runner:
 
 ```js
 var proxy = require('build-proxy');
@@ -70,7 +70,7 @@ proxy({
 ## Grunt and other build systems
 
 You do not need to use Gulp! Here is Browserify:
-                              
+
 ```js
 proxy({
     baseDir: 'dist/',
@@ -78,12 +78,12 @@ proxy({
         '**/*.js': 'scripts'
     }
 }, function(action, params, done) {
- browserify({/*config*/}).bundle(done);
+    browserify({/*config*/}).bundle(done);
 });
 ```
 
 Grunt doesn't have programmatically API with callback (see [issue 1184](https://github.com/gruntjs/grunt/issues/1184)), 
-use child_process for it
+use `child_process` for it
 
 ```js
 proxy({

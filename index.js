@@ -1,12 +1,12 @@
 /*jshint node:true*/
 "use strict";
-var _ = require('lodash'),
-    express = require('express');
+var express = require('express');
 
 function createMiddleware(config, callback) {
     var app = express();
 
-    _.forEach(config.routes, function(taskName, pattern) {
+    Object.keys(config.routes).forEach(function(pattern) {
+        var taskName = config.routes[pattern];
         app.use(pattern, function(req, res, next) {
             callback(taskName, req.params, next);
         });
