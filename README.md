@@ -1,4 +1,4 @@
-# Build proxy
+# Build proxy [![Build Status](https://travis-ci.org/just-boris/build-proxy.svg?branch=master)](https://travis-ci.org/just-boris/build-proxy)
 
 > [Express.js](http://expressjs.com/) middleware for rebuilding resources on demand
  
