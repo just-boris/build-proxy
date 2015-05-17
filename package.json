@@ -1,6 +1,6 @@
 {
   "name": "build-proxy",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Build your static files on demand",
   "main": "index.js",
   "scripts": {
